@@ -1,24 +1,35 @@
 workflows:
   ios-personal-build:
-    name: 每日打卡 iPhone App
+    name: 每日打卡 iPhone App（免费侧载构建）
     max_build_duration: 30
     instance_type: mac_mini_m2
     environment:
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: com.personal.dailycheckin
       xcode: latest
       vars:
         XCODE_PROJECT: DailyCheckIn.xcodeproj
-        BUNDLE_ID: com.personal.dailycheckin
+        APP_NAME: DailyCheckIn
     scripts:
-      - name: Build iOS app
+      - name: Build unsigned iOS app
         script: |
-          xcode-project use-profiles
-          xcode-project build-ipa \
-            --project "$XCODE_PROJECT" \
-            --scheme DailyCheckIn \
-            --config Release
+          set -e
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$APP_NAME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+          APP_PATH="build/DerivedData/Build/Products/Release-iphoneos/$APP_NAME.app"
+          test -d "$APP_PATH"
+          mkdir -p build/ipa/Payload
+          cp -R "$APP_PATH" build/ipa/Payload/
+          cd build/ipa
+          zip -qr "$APP_NAME.ipa" Payload
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
