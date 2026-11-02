@@ -1,0 +1,24 @@
+workflows:
+  ios-personal-build:
+    name: 每日打卡 iPhone App
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: com.personal.dailycheckin
+      xcode: latest
+      vars:
+        XCODE_PROJECT: DailyCheckIn.xcodeproj
+        BUNDLE_ID: com.personal.dailycheckin
+    scripts:
+      - name: Build iOS app
+        script: |
+          xcode-project use-profiles
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme DailyCheckIn \
+            --config Release
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
