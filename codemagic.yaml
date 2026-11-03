@@ -1,7 +1,6 @@
-
 workflows:
   ios-personal-build:
-    name: 每日打卡 iPhone App
+    name: 每日打卡 iPhone App（免费侧载构建）
     max_build_duration: 30
     instance_type: mac_mini_m2
     environment:
@@ -13,14 +12,6 @@ workflows:
       - name: Build unsigned iOS app
         script: |
           set -e
-          PROJECT_FILE="$XCODE_PROJECT/project.pbxproj"
-          sed -i '' \
-            's/IPHONEOS_DEPLOYMENT_TARGET = 16.0;/IPHONEOS_DEPLOYMENT_TARGET = 16.0; SDKROOT = iphoneos;/g' \
-            "$PROJECT_FILE"
-          sed -i '' \
-            's/SWIFT_VERSION = 5.9;/SWIFT_VERSION = 5.9; SUPPORTED_PLATFORMS = iphoneos;/g' \
-            "$PROJECT_FILE"
-          
           xcodebuild \
             -project "$XCODE_PROJECT" \
             -scheme "$APP_NAME" \
@@ -28,12 +19,6 @@ workflows:
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
             -derivedDataPath build/DerivedData \
-            SUPPORTED_PLATFORMS=iphoneos \
-            SDKROOT=iphoneos \
-            TARGETED_DEVICE_FAMILY="1,2" \
-            IPHONEOS_DEPLOYMENT_TARGET=16.0 \
-            GENERATE_INFOPLIST_FILE=YES \
-            SUPPORTS_MACCATALYST=NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \

@@ -22,11 +22,9 @@ final class CheckInStore: ObservableObject {
     private let checkInDatesKey = "checkin.checkInDates"
     private let calendar = Calendar.current
 
-        init() {
-        let initializationCalendar = Calendar.current
+    init() {
         let savedStart = defaults.object(forKey: startDateKey) as? Date
-        startDate = savedStart.map { initializationCalendar.startOfDay(for: $0) }
-            ?? initializationCalendar.startOfDay(for: Date())
+        startDate = savedStart.map { calendar.startOfDay(for: $0) } ?? calendar.startOfDay(for: Date())
 
         if let data = defaults.data(forKey: lapsesKey),
            let savedLapses = try? JSONDecoder().decode([Lapse].self, from: data) {
@@ -34,15 +32,11 @@ final class CheckInStore: ObservableObject {
         } else {
             lapses = []
         }
-
         if let savedDates = defaults.array(forKey: checkInDatesKey) as? [Date] {
-            checkInDates = savedDates.map {
-                initializationCalendar.startOfDay(for: $0)
-            }
+            checkInDates = savedDates.map { calendar.startOfDay(for: $0) }
         } else {
             checkInDates = []
         }
-
         persist()
     }
 
